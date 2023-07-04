@@ -1,6 +1,6 @@
 # OpenAI
 
-Instructions to run the app:
+App was developed using Python's 3.9.11 version. Instructions to run the app:
 
 1. Go to the directory named  `openai-web-app`.
 2. Setup your python environment using `requirements.txt` file.
