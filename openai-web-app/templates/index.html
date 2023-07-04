@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>ChatGPT Web App</title>
+</head>
+<body>
+    <h1>ChatGPT Web App</h1>
+
+    <div id="chat-container">
+        <div id="message-output"></div>
+        <input type="text" id="message-input">
+        <button id="send-button">Send</button>
+    </div>
+
+    <div id="upload-container">
+        <input type="file" id="file-input">
+        <button id="upload-button">Upload</button>
+        <div id="summary-output"></div>
+    </div>
+
+    <script>
+        // Event listener for the send button
+        var sendButton = document.getElementById('send-button');
+        sendButton.addEventListener('click', function () {
+            var messageInput = document.getElementById('message-input');
+            var message = messageInput.value.trim();
+            if (message !== '') {
+                sendMessage(message);
+                messageInput.value = '';
+            }
+        });
+		
+		
+		// Function to send a message to the server and receive a response
+        function sendMessage(message) {
+            fetch('/send-message', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: new URLSearchParams({
+                    'message': message
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                var messageOutput = document.getElementById('message-output');
+                messageOutput.innerHTML += '<p><strong>You:</strong> ' + message + '</p>';
+                messageOutput.innerHTML += '<p><strong>Response:</strong> ' + data.response + '</p>';
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        }
+		
+        // Event listener for the upload button
+        var uploadButton = document.getElementById('upload-button');
+        uploadButton.addEventListener('click', function () {
+            var fileInput = document.getElementById('file-input');
+            var file = fileInput.files[0];
+            if (file) {
+                var formData = new FormData();
+                formData.append('file', file);
+
+                var xhr = new XMLHttpRequest();
+                xhr.open('POST', '/upload');
+                xhr.onreadystatechange = function () {
+                    if (xhr.readyState === XMLHttpRequest.DONE) {
+                        if (xhr.status === 200) {
+                            var summaryOutput = document.getElementById('summary-output');
+                            summaryOutput.textContent = 'Summary: ' + JSON.parse(xhr.responseText).summary;
+                        } else {
+                            console.log('Error:', xhr.responseText);
+                        }
+                    }
+                };
+                xhr.send(formData);
+            }
+        });
+    </script>
+</body>
+</html>
